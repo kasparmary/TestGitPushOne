@@ -1,0 +1,23 @@
+http://192.168.29.100:3000
+http://localhost:30001/auth/login
+http://localhost:3001/ - If i give srong username then given correct username
+	{"message":"Please login with MS"}
+
+
+
+Category List API :
+	1. Category Order by name - missing, shows the DB inserted order.
+	2. It Allow, HTTP only. not HTTPS
+	3. http://localhost:3001/api/category/category-list
+		Provide "3000" intead of "3001" =>http://localhost:3000/api/category/category-list
+		Response: You need to enable JavaScript to run this app.
+	4. default error message:
+		{
+    			"message": "Something went wrong Argument passed in must be a string of 12 bytes or a string of 24 hex characters or an integer",
+    			"error": {}
+		}
+	5. IF router is not exists:
+		Cannot GET /api/category
+	6. If i give valid order id and valid AgentId but the given AgentId is not mapped with Order id.
+		404 not found => "message": "No order found"
+	

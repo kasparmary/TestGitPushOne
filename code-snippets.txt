@@ -1,0 +1,56 @@
+read API response as a String
+	JsonPath jj = new JsonPath(ROResponse);
+	System.out.println(jj.getString("data[0].customerName"));
+	System.out.println(jj.getString("data[0].returnPackages[0].productName"));
+
+
+public HashMap<String, String> getROApiResponse(String ro_number) {
+		//https://zschn01vm0005.zucisystems.com:3001/api/order/RO000000001
+		//extract().asString();
+		RestAssured.baseURI = "https://zschn01vm0005.zucisystems.com:3001/";
+		
+		Response response =  given().relaxedHTTPSValidation().log().all()
+				.cookie("token", getToken())
+				.when().get("api/order/"+ro_number);
+		//JsonPath jj = new JsonPath(ROResponse);
+		//System.out.println(jj.getString("data[0].customerName"));
+		//System.out.println(jj.getString("data[0].returnPackages[0].productName"));
+		
+		Response response = validateROApiResponse(ro_number);
+		//put values to hashmap
+		apiHashMap.put("orderId", response.jsonPath().getString("data.orderId"));
+		apiHashMap.put("customerName", response.jsonPath().getString("data.customerName"));
+		apiHashMap.put("customerContactNumber", response.jsonPath().getString("data.customerContactNumber"));
+		apiHashMap.put("productName", response.jsonPath().getString("data.returnPackages.productName"));
+		apiHashMap.put("productCategory", response.jsonPath().getString("data.returnPackages.productCategory.category"));
+		System.out.println(apiHashMap);
+		//return ODResponce;
+		return apiHashMap;
+	}
+
+public void setUp() {
+		ChromeOptions handlingSSL = new ChromeOptions();
+		handlingSSL.setAcceptInsecureCerts(true);
+		handlingSSL.addArguments("--remote-allow-origins=*");
+		driver = new ChromeDriver(handlingSSL);
+
+		driver.get("https://zschn01vm0005.zucisystems.com/home");
+		// Adds the cookie into current browser context
+		try {
+			driver.manage().addCookie(new Cookie("token",
+					"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyJ9.eyJhdWQiOiI1NTZkYWUzNS1iYjBjLTQxZjQtYTRkMS04NDkwZjYzNjRkODIiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vOTVkNmVhNjItMTgzNS00Yjk5LWFmNjYtODE5Yjk1YTgwODA4L3YyLjAiLCJpYXQiOjE2NzkwMzg4OTksIm5iZiI6MTY3OTAzODg5OSwiZXhwIjoxNjc5MDQyNzk5LCJhaW8iOiJBVFFBeS84VEFBQUFiaStLWnovTXE3MzNEc3NydUxITWRRUU9WaHFZMFBSQ3dKZkVCTCt4MWdUOGV6SGxtNWZKSlFqd1A0bmI4ZzVxIiwiY19oYXNoIjoiWkdqZmNvQWdzV3BLSUZpbUlfZ2xNdyIsImNjIjoiQ2dFQUVnOTZkV05wYzNsemRHVnRjeTVqYjIwYUVnb1F0dlZTZ1NZeEYwYTEzYnJWMlVucVNpSVNDaEFUSEN2V0tWRWxTcERGcGxWUGhpa0FNZ0pPUVRnQSIsIm5hbWUiOiJLYXNwYXIgTWFyeSIsIm5vbmNlIjoiQXdqajFpc0szRC1jT1F6R0NtTlZ4Qm45bmJGVEVxeFUiLCJvaWQiOiI4MWRlYWQ4MS0zNmEwLTQxNGEtOTc1MC0yYTc1MDdjZmQxYjYiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJrYXNwYXIubWFyeUB6dWNpc3lzdGVtcy5jb20iLCJyaCI6IjAuQVgwQVl1cldsVFVZbVV1dlpvR2JsYWdJQ0RXdWJWVU11X1JCcE5HRWtQWTJUWUsxQUdzLiIsInN1YiI6IkNySy1VeHJXdDltV0NfcE5WQVB4STVvNXlpdHVqc3RDQmZGYTVBc2k4YzAiLCJ0aWQiOiI5NWQ2ZWE2Mi0xODM1LTRiOTktYWY2Ni04MTliOTVhODA4MDgiLCJ1dGkiOiJFeHdyMWlsUkpVcVF4YVpWVDRZcEFBIiwidmVyIjoiMi4wIn0.RoK_RKdzIesiR0bccGWOGEh2vEGWEG16mTfOTT1-HJ4ai-0qyWAaLpQHi8NWMHouL5H9SgKq1oeuboxGLqrNWLdZQ73553b4ehjUrcnU712N0C4_Y2zU3IkH5Rhn19a0w4IZKa0C0aurz42qAHQinZYn9R5Y3I7xSY9duugi2JzPsRRzyCRBCIaY2a1bAPo2cJG1piP38jL9fcSUaGstfBEzH-tDkkFsCN4tN0GGVYv8HgItQmwT-6RX2Vsit-JMMigUjQspFyyYgWBb0wFDx5_BL0PyeOQb7FL8cLYgXojTPyl5H00CgowILDS6cZ2NrbSi0F3JU3f3NG82M0EMAw"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Global Before Hook Executed");
+	}
+
+	@Then("get API response for the given RO_number {string}")
+	public void get_api_response_for_the_given_ro_number(String string) {
+		ROResponse = common_actions.ConvertApiResponseToHashMap(string);
+		System.out.println(ROResponse);
+		//JsonPath jj = new JsonPath(ROResponse);
+		//System.out.println(jj.getString("data[0].customerName"));
+		//System.out.println(jj.getString("data[0].returnPackages[0].productName"));
+	}
